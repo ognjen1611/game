@@ -10,9 +10,6 @@ screen_height = 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Movable Tiny Knight")
 
-# Colors
-WHITE = (255, 255, 255)
-
 # Knight settings
 knight_speed = 3
 
@@ -66,6 +63,24 @@ current_frame = 0
 # Movement flag
 is_moving = False
 
+# Colors
+WHITE = (255, 255, 255)
+GREEN = (0, 220, 0)
+BLACK = (20, 20, 20)
+
+# Parallelogram drawing function with outline
+def draw_parallelogram(surface, fill_color, outline_color, top_left, width, height, slant):
+    # Points of the parallelogram
+    points = [
+        top_left,  # Top left corner
+        (top_left[0] + width, top_left[1]),  # Top right corner
+        (top_left[0] + width - slant, top_left[1] + height),  # Bottom right corner
+        (top_left[0] - slant, top_left[1] + height)  # Bottom left corner
+    ]
+    # Draw the filled parallelogram
+    pygame.draw.polygon(surface, fill_color, points, 0)
+    # Draw the outline with thickness 2
+    pygame.draw.polygon(surface, outline_color, points, 1)
 
 # Game loop
 running = True
@@ -74,15 +89,21 @@ current_direction = "right"
 # Clock to manage frame rate and animation timing
 clock = pygame.time.Clock()
 
+# Camera position for infinite scrolling
+camera_x, camera_y = 0, 0
+
+# Parallelogram parameters
+parallelogram_width = 40  # Width of each parallelogram
+parallelogram_height = 30  # Height of each parallelogram
+slant_offset = 17  # Slant offset for the parallelogram
+
 while running:
-    screen.fill(WHITE)
-    
     # Handle events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-    
+
     # Get keys pressed
     keys = pygame.key.get_pressed()
     
@@ -92,17 +113,21 @@ while running:
     # Move knight and detect direction
     if keys[pygame.K_LEFT]:
         knight_x -= knight_speed
+        camera_x -= knight_speed
         current_direction = "left"
         is_moving = True
     if keys[pygame.K_RIGHT]:
         knight_x += knight_speed
+        camera_x += knight_speed
         current_direction = "right"
         is_moving = True
     if keys[pygame.K_UP]:
         knight_y -= knight_speed
+        camera_y -= knight_speed
         is_moving = True
     if keys[pygame.K_DOWN]:
         knight_y += knight_speed
+        camera_y += knight_speed
         is_moving = True
     
     # Diagonal movement slowed down
@@ -110,28 +135,36 @@ while running:
     if keys[pygame.K_DOWN] and keys[pygame.K_LEFT]:
         knight_x -= kds
         knight_y += kds
+        camera_x -= kds
+        camera_y += kds
         current_direction = "left"
         is_moving = True
     if keys[pygame.K_DOWN] and keys[pygame.K_RIGHT]:
         knight_x += kds
         knight_y += kds
+        camera_x += kds
+        camera_y += kds
         current_direction = "right"
         is_moving = True
     if keys[pygame.K_UP] and keys[pygame.K_LEFT]:
         knight_x -= kds
         knight_y -= kds
+        camera_x -= kds
+        camera_y -= kds
         current_direction = "left"
         is_moving = True
     if keys[pygame.K_UP] and keys[pygame.K_RIGHT]:
         knight_x += kds
         knight_y -= kds
+        camera_x += kds
+        camera_y -= kds
         current_direction = "right"
         is_moving = True
     
     # Handle animation switching
     current_time = pygame.time.get_ticks()
     
-   # Use different intervals for movement and idle animations
+    # Use different intervals for movement and idle animations
     if is_moving:
         if current_time - animation_timer > movement_animation_interval:
             current_frame = (current_frame + 1) % len(move_right_frames)  # Loop through the frames
@@ -141,17 +174,28 @@ while running:
             current_frame = (current_frame + 1) % 2  # Toggle between frame 0 and 1
             animation_timer = current_time
     
+    # Clear the screen with the background color
+    screen.fill(WHITE)
+
+    x_offset = 0
+    
+    # Draw parallelograms with infinite tiling effect
+    for row in range(-parallelogram_height, (screen_height + 1000) + parallelogram_height, parallelogram_height):
+        x_offset -= slant_offset
+        for col in range(-parallelogram_width, (screen_width + 1000) + parallelogram_width, parallelogram_width):
+            draw_parallelogram(screen, GREEN, BLACK, (col + x_offset - camera_x, row - camera_y), parallelogram_width, parallelogram_height, slant_offset)
+
     # Choose which frames to display
     if is_moving:
         if current_direction == "left":
-            screen.blit(move_left_frames[current_frame], (knight_x, knight_y))
+            screen.blit(move_left_frames[current_frame], (knight_x - camera_x, knight_y - camera_y))
         else:
-            screen.blit(move_right_frames[current_frame], (knight_x, knight_y))
+            screen.blit(move_right_frames[current_frame], (knight_x - camera_x, knight_y - camera_y))
     else:
         if current_direction == "left":
-            screen.blit(idle_left_frames[current_frame % 2], (knight_x, knight_y))
+            screen.blit(idle_left_frames[current_frame % 2], (knight_x - camera_x, knight_y - camera_y))
         else:
-            screen.blit(idle_right_frames[current_frame % 2], (knight_x, knight_y))
+            screen.blit(idle_right_frames[current_frame % 2], (knight_x - camera_x, knight_y - camera_y))
     
     # Update the display
     pygame.display.flip()
