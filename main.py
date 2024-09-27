@@ -27,6 +27,14 @@ clock = pygame.time.Clock()
 # Game loop
 running = True
 
+# Camera position for infinite scrolling
+camera_x, camera_y = 0, 0
+
+# Parallelogram parameters
+parallelogram_width = 40  # Width of each parallelogram
+parallelogram_height = 30  # Height of each parallelogram
+slant_offset = 17  # Slant offset for the parallelogram
+
 while running:
     # Handle events
     for event in pygame.event.get():
@@ -40,6 +48,7 @@ while running:
     # Move the knight based on keys
     knight.move(keys)
     
+
     # Clear the screen with the background color
     screen.fill(WHITE)
 
