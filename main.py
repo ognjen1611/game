@@ -1,7 +1,6 @@
 import pygame
 import sys
 from knight import Knight
-from knight import Knight
 from tree import Tree
 
 # Initialize Pygame
@@ -11,7 +10,6 @@ pygame.init()
 screen_width = 800
 screen_height = 600
 screen = pygame.display.set_mode((screen_width, screen_height))
-
 
 pygame.display.set_caption("Movable Tiny Knight")
 
@@ -63,7 +61,6 @@ while running:
     # Draw knight's animation on top of the background
     knight.handleAnimation(screen)
 
-
     # Move knight and check collision with the tree
     knight.move(keys, tree.rect)
     
@@ -86,7 +83,6 @@ while running:
 
     # Update the display
     pygame.display.flip()
-
 
     # Frame rate
     clock.tick(60)
