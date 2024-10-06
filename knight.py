@@ -57,9 +57,16 @@ class Knight:
         self.current_direction = "right"
         self.is_moving = False
 
-    def move(self, keys):
+        # Create a rect for the knight for collision detection
+        self.rect = pygame.Rect(self.knight_x, self.knight_y, self.knight_width, self.knight_height)
+
+
+    def move(self, keys, tree_rect):
         # Reset movement flag
         self.is_moving = False
+
+        # Calculate potential new position
+        old_x, old_y = self.knight_x, self.knight_y
 
         # Move knight and detect direction
         if keys[pygame.K_LEFT]:
@@ -111,6 +118,14 @@ class Knight:
             self.camera_y -= kds
             self.current_direction = "right"
             self.is_moving = True
+
+        # Update knight's rect position
+        self.rect.topleft = (self.knight_x, self.knight_y)
+
+        # Check for collision with the tree
+        if self.rect.colliderect(tree_rect):
+            self.knight_x, self.knight_y = old_x, old_y
+            self.rect.topleft = (self.knight_x, self.knight_y)
 
     def handleAnimation(self, screen):
         # Handle animation switching
