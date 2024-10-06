@@ -21,23 +21,14 @@ knight = Knight(screen_width, screen_height)
 # Load Terrain (Grassland image)
 grassland = pygame.image.load("Grassland.png")
 
-# Create a Knight instance
-knight = Knight(screen_width, screen_height)
-
 # Create Tree instance
 tree = Tree(screen_width, screen_height)
-
-# Load Terrain (Grassland image)
-grassland = pygame.image.load("Grassland.png")
 
 # Colors
 WHITE = (255, 255, 255)
 
 # Clock to manage frame rate and animation timing
 clock = pygame.time.Clock()
-
-# Game loop
-running = True
 
 # Game loop
 running = True
@@ -52,12 +43,8 @@ while running:
             pygame.quit()
             sys.exit()
 
-
     # Get keys pressed
     keys = pygame.key.get_pressed()
-
-    # Move the knight based on keys
-    knight.move(keys)
     
     # Clear the screen with the background color
     screen.fill(WHITE)
